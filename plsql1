@@ -1,0 +1,223 @@
+1) Write a PL/SQL code to display the job details of the person with employee
+number 12. (Use the concept of "%rowtype")
+
+PROGRAM CODE:
+DECLARE
+    v_name VARCHAR2(20);
+    v_rollno NUMBER;
+    v_mark1 NUMBER;
+    v_mark2 NUMBER;
+    v_mark3 NUMBER;
+    v_mark4 NUMBER;
+    v_total NUMBER;
+    v_percentage NUMBER(8,2);
+BEGIN
+    -- Accept input from the keyboard
+    v_name := '&name';
+    v_rollno := &rollno;
+    v_mark1 := &mark1;
+    v_mark2 := &mark2;
+    v_mark3 := &mark3;
+    v_mark4 := &mark4;
+
+    -- Calculate total and percentage (assuming max marks per subject is 100)
+    v_total := v_mark1 + v_mark2 + v_mark3 + v_mark4;
+    v_percentage := v_total / 4;
+
+    -- Output the results
+    DBMS_OUTPUT.PUT_LINE('-------------------- Student Marklist --------------------');
+    DBMS_OUTPUT.PUT_LINE('Name         : ' || v_name);
+    DBMS_OUTPUT.PUT_LINE('Roll No.     : ' || v_rollno);
+    DBMS_OUTPUT.PUT_LINE('Total Mark   : ' || v_total);
+    DBMS_OUTPUT.PUT_LINE('Percentage   : ' || v_percentage);
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------');
+END;
+/
+
+output
+SQL> @Pro1.sql
+Enter value for name: Kiran
+old  12:     v_name := '&name';
+new  12:     v_name := 'Kiran';
+Enter value for rollno: 38
+old  13:     v_rollno := &rollno;
+new  13:     v_rollno := 38;
+Enter value for mark1: 33
+old  14:     v_mark1 := &mark1;
+new  14:     v_mark1 := 33;
+Enter value for mark2: 35
+old  15:     v_mark2 := &mark2;
+new  15:     v_mark2 := 35;
+Enter value for mark3: 36
+old  16:     v_mark3 := &mark3;
+new  16:     v_mark3 := 36;
+Enter value for mark4: 38
+old  17:     v_mark4 := &mark4;
+new  17:     v_mark4 := 38;
+
+PL/SQL procedure successfully completed.
+
+2)Write PLSQL code to calculate total salary amount of first n record of
+employee table.
+
+PROGRAM CODE:
+DECLARE
+    max_sal NUMBER(8,2);
+    v_empcount NUMBER(4);
+    v_empname employee_98.emp_name%TYPE;
+    v_empdepid employee_98.dept_id%TYPE;
+BEGIN
+    -- Find the maximum salary
+    SELECT MAX(emp_salary)
+    INTO max_sal
+    FROM employee_98;
+
+    -- Count the number of employees with the maximum salary
+    SELECT COUNT(emp_id)
+    INTO v_empcount
+    FROM employee_98
+    WHERE emp_salary = max_sal;
+
+    IF v_empcount > 1 THEN
+        DBMS_OUTPUT.PUT_LINE('There are ' || v_empcount || ' employees with this salary!');
+    ELSE
+        -- Retrieve the name and department ID of the employee with the maximum salary
+        SELECT emp_name, dept_id
+        INTO v_empname, v_empdepid
+        FROM employee_98
+        WHERE emp_salary = max_sal;
+
+        DBMS_OUTPUT.PUT_LINE('The person having the highest salary is ' || v_empname);
+        DBMS_OUTPUT.PUT_LINE('Department ' || v_empdepid);
+    END IF;
+END;
+/
+
+output
+SQL> @Pro2.sql
+There are 2 employees with this salary!
+
+PL/SQL procedure successfully completed.
+
+3)
+DECLARE
+v_emp employee_98%rowtype;
+BEGIN
+select * into v_emp from employee_98 where emp_id = 102;
+DBMS_OUTPUT.PUT_LINE ('***********************************');
+DBMS_OUTPUT.PUT_LINE ('Faculty Name: '||v_emp.emp_name);
+DBMS_OUTPUT.PUT_LINE ('Joining Date: '||v_emp.emp_join_date);
+DBMS_OUTPUT.PUT_LINE ('Salary: '||v_emp.emp_salary);
+DBMS_OUTPUT.PUT_LINE ('************************************');
+END;
+/
+
+OUTPUT 
+
+SQL> @Pro3.sql
+***********************************
+Faculty Name: Ann
+Joining Date: 10-APR-22
+Salary: 60000
+************************************
+
+PL/SQL procedure successfully completed.
+
+4)
+SET VERIFY OFF
+DECLARE
+n number;
+i number:=1;
+t number:=0;
+cursor emp is select emp_salary from employee_98;
+cemp emp%rowtype;
+BEGIN
+n:=&n;
+open emp;
+WHILE (i<=n)
+LOOP
+fetch emp into cemp;
+t:=t+cemp.emp_salary;
+i:=i+1;
+END LOOP;
+dbms_output.put_line('---------------------------------------------------------');
+dbms_output.put_line('Total salary of ' || n || ' employee is ' || t );
+dbms_output.put_line('---------------------------------------------------------');
+close emp;
+END;
+/
+
+OUTPUT
+SQL> @Pro4.sql
+Enter value for n: 2
+---------------------------------------------------------
+Total salary of 2 employee is 115000
+---------------------------------------------------------
+
+PL/SQL procedure successfully completed.
+
+5)Write PLSQL code to raise an exception if an employee with a particular
+employee id is not existing. Otherwise print that employee details.
+PROGRAM CODE:
+
+accept v_id prompt 'Enter the id to search :';
+DECLARE
+emp employee_98%rowtype;
+v_id number;
+BEGIN
+v_id:=&v_id;
+select * into emp from employee_98 where emp_id=v_id;
+dbms_output.put_line('-----------------------------------------------------');
+dbms_output.put_line('Name :' ||emp.emp_name);
+dbms_output.put_line('Join date :' ||emp.emp_join_date);
+dbms_output.put_line('Salary:' ||emp.emp_salary);
+dbms_output.put_line('-----------------------------------------------------');
+EXCEPTION
+when no_data_found then
+dbms_output.put_line('No details for the employee with id ' || v_id);
+END;
+/
+
+SQL> @Pro5.sql               
+Enter the id to search :3
+-----------------------------------------------------
+Name :Amal
+Join date :03-OCT-21
+Salary:65000
+-----------------------------------------------------
+
+PL/SQL procedure successfully completed.
+
+6)
+create or replace procedure c_string(str1 in varchar, str2 in varchar) as
+str3 varchar(20);
+begin
+str3 := CONCAT(str1, str2);
+dbms_output.put_line('Concatenated string is: ' || str3);
+end;
+/
+accept str1 prompt 'Enter the value of first string:';
+accept str2 prompt 'Enter the value of second string:';
+declare
+str1 varchar(20);
+str2 varchar(20);
+begin
+str1 := '&str1';
+str2 := '&str2';
+c_string(str1, str2);
+end;
+/
+
+SQL> @Pro6.sql
+
+Procedure created.
+
+Enter the value of first string:Helloo
+Enter the value of second string:Welcome
+Concatenated string is: HellooWelcome
+
+PL/SQL procedure successfully completed.
+
+
+
+
